@@ -1,0 +1,2 @@
+# pyworkmaster
+Work setup manager
