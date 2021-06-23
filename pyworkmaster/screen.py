@@ -4,6 +4,7 @@ import subprocess
 import os
 
 _log = logging.getLogger(__name__)
+default_config = os.path.expanduser("~/.screenrc")
 
 
 def run(config, proj):
@@ -13,8 +14,9 @@ def run(config, proj):
     screenrc = []
 
     # Get default config.
-    with open(os.path.expanduser("~/.screenrc"), "r") as f:
-        screenrc.extend([l.rstrip() for l in f.readlines()])
+    if os.path.exists(default_config):
+        with open(default_config, "r") as f:
+            screenrc.extend([line.rstrip() for line in f.readlines()])
 
     # Create windows and set proper titles and run commands.
     screenrc.append(f"sessionname {session}")
