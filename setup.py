@@ -28,5 +28,5 @@ setup(
     packages=[
         "pyworkmaster"
     ],
-    python_requires=">=3.9",
+    python_requires=">=3.8.5",
 )
