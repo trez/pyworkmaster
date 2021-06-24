@@ -28,7 +28,7 @@ def wm_setup(project):
         print("Unknown project")
         return -1
 
-    s.run(config, project)
+    s.run(config[project])
 
 
 def main():

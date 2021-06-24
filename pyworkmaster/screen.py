@@ -7,10 +7,7 @@ _log = logging.getLogger(__name__)
 default_config = os.path.expanduser("~/.screenrc")
 
 
-def run(config, proj):
-    session = config[proj]["variables"]["PROJECT"]
-    p = config[proj]
-
+def run(p):
     screenrc = []
 
     # Get default config.
@@ -19,7 +16,7 @@ def run(config, proj):
             screenrc.extend([line.rstrip() for line in f.readlines()])
 
     # Create windows and set proper titles and run commands.
-    screenrc.append(f"sessionname {session}")
+    screenrc.append(f"sessionname {p['variables']['PROJECT']}")
     for num, title in enumerate(p["windows"], 1):
         screenrc.append(f"screen -t {title} {num}")
         for cmd in p["windows"][title]:
@@ -29,6 +26,7 @@ def run(config, proj):
     queue = [p["layout"]]
     while queue:
         n, *queue = queue
+        queue.extend(n.children)
         if not n.name.isalpha():
             num_splits = len(n.children) - 1
             split = "split -v" if n.name == "|" else "split"
@@ -36,7 +34,6 @@ def run(config, proj):
         else:
             screenrc.append(f"select {n.name}")
             screenrc.append("focus")
-        queue.extend(n.children)
     screenrc.append("layout save default")
 
     # Write to temp config.

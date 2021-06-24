@@ -3,7 +3,7 @@ Work setup manager
 
 Example config:
 ```yaml
-# Located at ~/.config/workmaster/config.yaml
+# Located at ~/.config/workmaster/config.yml
 variables:
     HOME: /home/trez/dev
 
@@ -37,7 +37,7 @@ test_project:
 
 Example commands:
 ```bash
-# List projects from config.yaml
+# List projects from config.yml
 $ workmaster list
 test_project
 
@@ -52,19 +52,31 @@ $ pip install .
 ```
 
 ## Usage
+### configuration
+Default path for user configuration is set to '~/.config/workmaster/config.yml'.
+
+Project specific configuration are read if located in current directory named '.workmaster.yml'.
+
+
 ### variables
 Define variables that can be scoped on a global level or on a project level.
+
 Variables can be nested in other variable definitions (order matters) and in window command specifications.
 
 ### windows
 Titles can use any alphabet characters and can be longer than 1.
+
 Use variable placeholders by encapsulate the variable with {}.
 
 ### layout
 Define how a workspace should be split into regions where | denotes vertical split and / denotes horizontal splits.
+
 The titles used corresponds to the defined titles in windows section of the configuration file.
+
 Using parentheses indicate that the region should be further split into subregions.
+
 If one wants to split a workspace into 3 regions do so by using definition A | B | C.
+
 Not all windows need to be used in the layout.
 
 ## Tips'n'tricks

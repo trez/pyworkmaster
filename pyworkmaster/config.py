@@ -7,7 +7,7 @@ from pyworkmaster.layout import parse
 
 _log = logging.getLogger(__name__)
 
-DEFAULT_CONFIG_NAME = "config.yaml"
+DEFAULT_CONFIG_NAME = "config.yml"
 DEFAULT_LOCAL_CONFIG_NAME = ".workmaster.yml"
 
 HOME = os.path.abspath(os.path.expanduser("~"))
@@ -36,15 +36,12 @@ class Config:
         yaml_config = None
         if document is not None:
             yaml_config = yaml.safe_load(document)
-        elif os.path.isfile(CONFIG):
-            with open(CONFIG, "r") as fp:
-                yaml_config = yaml.safe_load(fp)
-        if yaml_config:
             self.__handle_yaml(yaml_config)
 
-        if os.path.isfile(LOCALCONFIG):
-            with open(LOCALCONFIG, "r") as fp:
-                yaml_config = yaml.safe_load(fp)
+        for conffile in [CONFIG, LOCALCONFIG]:
+            if os.path.isfile(conffile):
+                with open(conffile, "r") as fp:
+                    yaml_config = yaml.safe_load(fp)
             if yaml_config:
                 self.__handle_yaml(yaml_config)
 
