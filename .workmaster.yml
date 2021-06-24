@@ -1,0 +1,14 @@
+pyworkmaster:
+    variables:
+        SRCPATH: '{PROJECT}'
+
+    layout: A|(B/C)
+
+    windows:
+        A:
+            - cd {SRCPATH}
+            - nano __main__.py
+        B:
+            - git status
+        C:
+            - echo {PROJECT}

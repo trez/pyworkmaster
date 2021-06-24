@@ -20,13 +20,10 @@ setup(
         "pyclicommander @ git+https://git.cs.kau.se/tobivehk/pyclicommander.git@ab51cec4",
     ],
     entry_points={
-        'console_scripts': [
-            'workmaster=pyworkmaster.__main__:main',
+        "console_scripts": [
+            "workmaster=pyworkmaster.__main__:main",
         ]
     },
-
-    packages=[
-        "pyworkmaster"
-    ],
+    packages=["pyworkmaster"],
     python_requires=">=3.8.5",
 )

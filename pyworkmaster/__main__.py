@@ -44,7 +44,7 @@ def _setup_logging(config):
     handlers = [logging.StreamHandler(sys.stdout)]
 
     logging.basicConfig(
-        level=config.get_global('log_level'),
+        level=config.get_global("log_level"),
         format="%(levelname)s:%(asctime)s:%(name)s:%(message)s",
         handlers=handlers,
     )

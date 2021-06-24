@@ -1,5 +1,5 @@
 class Tree:
-    def __init__(self, name='root', children=None):
+    def __init__(self, name="root", children=None):
         self.name = name
         self.children = []
         if children is not None:
@@ -51,17 +51,19 @@ def parse_tree(expr, start_from=0, left_parentheses=False):
                 node.add_child(Tree(curr_name))
                 curr_name = ""
 
-            if s == '|' or s == "/":
+            if s == "|" or s == "/":
                 if node.name == "root" or node.name == s:
                     expect_rhs = True
                     node.name = s
                 else:
                     raise Exception("ambigious")
-            elif s == '(':
+            elif s == "(":
                 expect_rhs = False
-                subtree, s_ptr = parse_tree(expr, start_from=s_ptr+1, left_parentheses=True)
+                subtree, s_ptr = parse_tree(
+                    expr, start_from=s_ptr + 1, left_parentheses=True
+                )
                 node.add_child(subtree)
-            elif s == ')':
+            elif s == ")":
                 if left_parentheses:
                     left_parentheses = False
                     break
