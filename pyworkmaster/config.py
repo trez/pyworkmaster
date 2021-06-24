@@ -65,7 +65,6 @@ class Config:
 
     def __handle_yaml(self, yaml_config):
         global_vars = {}
-        print(yaml_config)
         for k, v in yaml_config.get("variables", {}).items():
             global_vars[k] = v.format(**global_vars)
 
