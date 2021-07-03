@@ -41,7 +41,7 @@ Example commands:
 $ workmaster list
 test_project
 
-$ workmaster setup test_project
+$ workmaster attach --setup test_project
 # Starts a screen session named 'test_project' with 3 windows named A, B and C.
 # With a workspace split into 3 regions.
 ```

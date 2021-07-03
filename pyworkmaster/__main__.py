@@ -13,22 +13,77 @@ config = None
 
 @commander.cli("list")
 def wm_list():
+    """ List all available projects found in config. """
     for proj in config:
-        print(proj)
+        print((f"{'* ' if s.is_setup(proj) else ''}{proj}"))
+
+
+@commander.cli("config")
+def wm_config():
+    """ Configuration management. """
+    commander.help(["config"])
 
 
 @commander.cli("config get PROJECT")
 def wm_config_get(project):
+    """ Get configuration for a project. """
+    if project not in config:
+        print("Unknown project")
+        return -1
+
     print(config[project])
 
 
 @commander.cli("setup PROJECT")
 def wm_setup(project):
+    """ Setup an initial project workspace. """
     if project not in config:
         print("Unknown project")
         return -1
 
-    s.run(config[project])
+    s.setup(config[project])
+
+
+@commander.cli("attach [--setup] PROJECT")
+def wm_attach(project, setup=False):
+    """ Attach to a project workspace.
+
+    Flags
+    -----
+    --setup   Setup project if not setup before attaching.
+    """
+    if project not in config:
+        print("Unknown project")
+        return -1
+
+    if not s.is_setup(project):
+        if setup:
+            s.setup(config[project])
+        else:
+            print("Project not setup.")
+            return -1
+
+    s.attach(project)
+
+
+@commander.cli("kill PROJECT")
+def wm_kill(project):
+    """ Kill a project workspace. """
+    if project not in config:
+        print("Unknown project")
+        return -1
+
+    if not s.is_setup(project):
+        print("Project not setup.")
+        return -1
+
+    s.kill(project)
+
+
+@commander.cli("")
+def wm_main():
+    """ Workmaster cli. """
+    commander.help()
 
 
 def main():

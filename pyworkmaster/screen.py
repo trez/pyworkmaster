@@ -7,7 +7,7 @@ _log = logging.getLogger(__name__)
 default_config = os.path.expanduser("~/.screenrc")
 
 
-def run(p):
+def setup(p):
     screenrc = []
 
     # Get default config.
@@ -35,11 +35,33 @@ def run(p):
             screenrc.append(f"select {n.name}")
             screenrc.append("focus")
     screenrc.append("layout save default")
+    screenrc.append("detach")
 
     # Write to temp config.
+    screenrc.append("")
     fd, tmpfile = tempfile.mkstemp()
     with open(tmpfile, "w") as f:
         f.write("\n".join(screenrc))
 
     # Start screen session.
-    subprocess.run(f"screen -c {tmpfile}", shell=True)
+    process = subprocess.run(f"screen -c {tmpfile}",
+                             shell=True,
+                             stdout=subprocess.DEVNULL,
+                             stderr=subprocess.STDOUT)
+    return process.returncode
+
+
+def attach(p):
+    subprocess.run(f"screen -x {p}", shell=True)
+
+
+def is_setup(p):
+    process = subprocess.run(f"screen -S {p} -Q select .",
+                             shell=True,
+                             stdout=subprocess.DEVNULL,
+                             stderr=subprocess.STDOUT)
+    return process.returncode == 0
+
+
+def kill(p):
+    subprocess.run(f"screen -XS {p} quit", shell=True)
