@@ -12,3 +12,9 @@ pyworkmaster:
             - git status
         C:
             - echo {PROJECT}
+
+    tasks:                                  
+        test:                               
+            short_description: Run python tests.
+            cmds:
+                - B) python setup.py test       

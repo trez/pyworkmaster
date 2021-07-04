@@ -73,7 +73,6 @@ class Config:
             p = self.config[project]
 
             p["variables"] = global_vars.copy()
-            p["windows"] = {}
 
             # layout.
             p["layout"] = parse(y.get("layout"))
@@ -84,8 +83,25 @@ class Config:
                 p["variables"][k] = v.format(**p["variables"])
 
             # windows.
+            p["windows"] = {}
             for k, vs in y.get("windows", {}).items():
                 p["windows"][k] = []
                 # commands, expand {VARS}
                 for v in vs:
                     p["windows"][k].append(v.format(**p["variables"]))
+
+            # tasks.
+            p["tasks"] = {}
+            for task, taskinfo in y.get("tasks", {}).items():
+                p["tasks"][task] = {}
+                if "short_description" in taskinfo:
+                    p["tasks"][task]["short_description"] = taskinfo["short_description"]
+
+                if "long_description" in taskinfo:
+                    p["tasks"][task]["long_description"] = taskinfo["long_description"]
+
+                p["tasks"][task]["cmds"] = []
+                for v in taskinfo["cmds"]:
+                    window, cmd = v.split(")", 1)
+                    cmd = cmd.lstrip()
+                    p["tasks"][task]["cmds"].append((window, cmd.format(**p["variables"])))

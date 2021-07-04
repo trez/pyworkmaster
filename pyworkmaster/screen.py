@@ -65,3 +65,7 @@ def is_setup(p):
 
 def kill(p):
     subprocess.run(f"screen -XS {p} quit", shell=True)
+
+
+def run_command(session, window, cmd):
+    subprocess.run(f"screen -S {session} -p {window} -X stuff '{cmd}^M'", shell=True)

@@ -33,6 +33,8 @@ test_project:
             - conda activate {CONDAENV}
             - cd {PATH}
             - echo {PROJECT}
+            
+    
 ```
 
 Example commands:
@@ -78,6 +80,9 @@ Using parentheses indicate that the region should be further split into subregio
 If one wants to split a workspace into 3 regions do so by using definition A | B | C.
 
 Not all windows need to be used in the layout.
+
+### tasks
+Run commands for a task in a specific window.
 
 ## Tips'n'tricks
 ### screenrc
