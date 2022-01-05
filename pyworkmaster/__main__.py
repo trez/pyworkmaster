@@ -114,7 +114,7 @@ def main():
 
 
 def _get_current_session():
-    if screen_env := os.environ['STY']:
+    if screen_env := os.environ.get('STY'):
         pid, project = screen_env.split(".", 1)
         return project
     return None
