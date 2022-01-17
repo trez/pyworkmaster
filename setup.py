@@ -18,6 +18,7 @@ setup(
     classifiers=["Programming Language :: Python :: 3"],
     install_requires=[
         "pyclicommander @ git+https://git.cs.kau.se/tobivehk/pyclicommander.git@f98c142a",
+        "pyyaml",
     ],
     entry_points={
         "console_scripts": [
