@@ -45,26 +45,32 @@ def wm_setup(project):
     s.setup(config[project])
 
 
-@commander.cli("attach [--setup] PROJECT")
-def wm_attach(project, setup=False):
+@commander.cli("attach [--setup] [PROJECT]")
+def wm_attach(project=None, setup=False):
     """ Attach to a project workspace.
 
     Flags
     -----
     --setup   Setup project if not setup before attaching.
     """
-    if project not in config:
-        print("Unknown project")
-        return -1
 
-    if not s.is_setup(project):
-        if setup:
-            s.setup(config[project])
-        else:
-            print("Project not setup.")
+    if project is None:
+        setup_projects = [proj for proj in config if s.is_setup(proj)]
+        for proj in setup_projects:
+            print((f"* {proj}"))
+    else:
+        if project not in config:
+            print("Unknown project")
             return -1
 
-    s.attach(project)
+        if not s.is_setup(project):
+            if setup:
+                s.setup(config[project])
+            else:
+                print("Project not setup.")
+                return -1
+
+        s.attach(project)
 
 
 @commander.cli("kill PROJECT")
