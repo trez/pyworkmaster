@@ -32,8 +32,9 @@ def parse(expr):
            /   \
          B       C
     """
-    tree, _ = parse_tree(expr)
-    return tree
+    if expr:
+        tree, _ = parse_tree(expr)
+        return tree
 
 
 def parse_tree(expr, start_from=0, left_parentheses=False):

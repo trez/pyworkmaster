@@ -79,7 +79,7 @@ class Config:
 
             # variables.
             p["variables"]["PROJECT"] = project
-            for k, v in y.get("variables", []).items():
+            for k, v in y.get("variables", {}).items():
                 p["variables"][k] = v.format(**p["variables"])
 
             # windows.
