@@ -40,12 +40,20 @@ test_project:
 Example commands:
 ```bash
 # List projects from config.yml
-$ workmaster list
+$ workmaster
 test_project
 
-$ workmaster attach --setup test_project
 # Starts a screen session named 'test_project' with 3 windows named A, B and C.
 # With a workspace split into 3 regions.
+$ workmaster test_project attach
+
+# Print config
+$ workmaster test_project config
+{'layout': |[A, /[B, C]],
+ 'variables': {'PROJECT': 'test_project', 'CONDAENV': 'test_environment'},
+ 'windows': {'A': [...],
+             'B': [...],
+             'C': [...]}}
 ```
 
 ## Install

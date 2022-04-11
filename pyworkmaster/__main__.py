@@ -1,6 +1,7 @@
 import sys
 import os
 import logging
+from pprint import pprint
 
 from pyworkmaster.config import Config
 import pyworkmaster.screen as s
@@ -12,96 +13,76 @@ commander = Commander(cmd_name="workmaster")
 config = None
 
 
-@commander.cli("list")
-def wm_list():
-    """ List all available projects found in config. """
-    for proj in config:
-        print((f"{'* ' if s.is_setup(proj) else ''}{proj}"))
-
-
-@commander.cli("config")
-def wm_config():
-    """ Configuration management. """
-    commander.help(["config"])
-
-
-@commander.cli("config get PROJECT")
+@commander.cli("PROJECT config")
 def wm_config_get(project):
     """ Get configuration for a project. """
-    if project not in config:
-        print("Unknown project")
-        return -1
-
-    print(config[project])
+    __for_project(lambda p: pprint(config[p]), project=project)
 
 
-@commander.cli("setup PROJECT")
-def wm_setup(project):
-    """ Setup an initial project workspace. """
-    if project not in config:
-        print("Unknown project")
-        return -1
-
-    s.setup(config[project])
-
-
-@commander.cli("attach [--setup] [PROJECT]")
-def wm_attach(project=None, setup=False):
+@commander.cli("PROJECT attach")
+def wm_attach(project, setup=False):
     """ Attach to a project workspace.
-
-    Flags
-    -----
-    --setup   Setup project if not setup before attaching.
     """
-
-    if project is None:
-        setup_projects = [proj for proj in config if s.is_setup(proj)]
-        for proj in setup_projects:
-            print((f"* {proj}"))
-    else:
-        if project not in config:
-            print("Unknown project")
-            return -1
-
-        if not s.is_setup(project):
-            if setup:
-                s.setup(config[project])
-            else:
-                print("Project not setup.")
-                return -1
-
-        s.attach(project)
-
-
-@commander.cli("kill PROJECT")
-def wm_kill(project):
-    """ Kill a project workspace. """
-    if project not in config:
-        print("Unknown project")
-        return -1
+    _assert_project_defined(project)
 
     if not s.is_setup(project):
-        print("Project not setup.")
-        return -1
+        s.setup(config[project])
 
-    s.kill(project)
+    s.attach(project)
 
 
-@commander.cli("task")
-def wm_task_run():
-    """ Run a task for attached project. """
-    commander.help(["task"])
+@commander.cli("PROJECT kill")
+def wm_kill(project):
+    """ Kill a project workspace. """
+    def _kill(project):
+        if not s.is_setup(project):
+            print("Project not setup.")
+            return -1
+        s.kill(project)
+
+    __for_project(_kill, project=project)
+
+
+@commander.cli("PROJECT")
+def wm_project(project):
+    __for_project(lambda p: print(f"{project=}"), project=project)
+
+
+@commander.cli("current")
+def wm_current_name():
+    """ Name current session. """
+    __for_project(print)
+
+
+@commander.cli("current kill")
+def wm_current_kill():
+    """ Kill current session. """
+    __for_project(s.kill)
+
+
+@commander.cli("current config")
+def wm_current_config():
+    """ Get config for current session. """
+    __for_project(wm_config_get)
 
 
 @commander.cli("")
 def wm_main():
-    """ Workmaster cli. """
-    commander.help()
+    """ List all available projects found in config. """
+    for proj in sorted(config):
+        print((f"{'* ' if s.is_setup(proj) else ''}{proj}"))
 
 
-def handle_tasks(project, task):
-    for window, cmd in config[project]["tasks"][task]["cmds"]:
-        s.run_command(project, window, cmd)
+def __for_project(run_f, project=None):
+    if project is None:
+        project = _get_current_session()
+
+    if project and project in config:
+        return run_f(project)
+    elif project not in config:
+        print("Not configured workmaster project")
+    else:
+        print("Could not figure out current project")
 
 
 def main():
@@ -110,13 +91,13 @@ def main():
     _setup_logging(config)
     _log.debug(f"CONFIG:\n{config}")
 
-    # Register each project specific task as a new cli.
-    if (current_project := _get_current_session()) and current_project in config:
-        for task, taskinfo in config[current_project]["tasks"].items():
-            kwargs = {k: taskinfo[k] for k in taskinfo if k in ["short_description", "long_description"]}
-            commander.add_cli(f"task {task}", lambda: handle_tasks(current_project, task), **kwargs)
-
     return commander.call_with_help()
+
+
+def _assert_project_defined(project):
+    if project not in config:
+        print("Unknown project")
+        sys.exit(1)
 
 
 def _get_current_session():
@@ -127,7 +108,6 @@ def _get_current_session():
 
 
 def _setup_logging(config):
-    # handlers = [logging.FileHandler('output.log')]
     handlers = [logging.StreamHandler(sys.stdout)]
 
     logging.basicConfig(
