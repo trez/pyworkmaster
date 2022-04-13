@@ -12,6 +12,9 @@ test_project:
         PATH: '{HOME}/{PROJECT}'
         CONDAENV: test_environment
         
+    git:
+        repo: https://github.com/trez/pyworkmaster
+        
     # Workarea is split like this:
     #  +-----------+
     #  |     |  B  |
@@ -39,9 +42,9 @@ test_project:
 
 Example commands:
 ```bash
-# List projects from config.yml
+# List projects from config.yml and show their git status and current branch if possible.
 $ workmaster
-test_project
+✓ test_project [master]
 
 # Starts a screen session named 'test_project' with 3 windows named A, B and C.
 # With a workspace split into 3 regions.

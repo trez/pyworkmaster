@@ -2,15 +2,26 @@ import sys
 import os
 import logging
 from pprint import pprint
+from pyclicommander import Commander
 
 from pyworkmaster.config import Config
+from pyworkmaster.symbols import red_x, green_check
+import pyworkmaster.wm_git as _git
 import pyworkmaster.screen as s
-from pyclicommander import Commander
 
 _log = logging.getLogger(__name__)
 
 commander = Commander(cmd_name="workmaster")
 config = None
+
+
+@commander.cli("PROJECT git")
+def wm_git(project):
+    """ Get configuration for a project. """
+    def _print_git_status(project):
+        branch, status = _git.status(config, project)
+        print(status)
+    __for_project(_print_git_status, project=project)
 
 
 @commander.cli("PROJECT config")
@@ -70,7 +81,17 @@ def wm_current_config():
 def wm_main():
     """ List all available projects found in config. """
     for proj in sorted(config):
-        print((f"{'* ' if s.is_setup(proj) else ''}{proj}"))
+        branch_text = ""
+        if status := _git.status(config, proj):
+            branch, info = status
+            has_changes = sum(info.values()) > 0 
+            status_text = red_x if has_changes else green_check
+            branch_text = f"[{branch}]"
+        else:
+            status_text = " "
+
+        # print((f"{'* ' if s.is_setup(proj) else ''}{proj}"))
+        print(f"{status_text} {proj} {branch_text}")
 
 
 def __for_project(run_f, project=None):

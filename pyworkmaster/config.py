@@ -105,3 +105,8 @@ class Config:
                     window, cmd = v.split(")", 1)
                     cmd = cmd.lstrip()
                     p["tasks"][task]["cmds"].append((window, cmd.format(**p["variables"])))
+
+            # git.
+            if gitinfo := y.get("git"):
+                p["git"] = {}
+                p["git"]["repo"] = gitinfo.get("repo")

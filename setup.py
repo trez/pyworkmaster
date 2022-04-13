@@ -5,7 +5,7 @@ with open("README.md", "r", encoding="utf-8") as fh:
 
 setup(
     name="workmaster",
-    version="0.0.7",
+    version="0.0.8",
     author="trez",
     author_email="tobias.vehkajarvi@gmail.com",
     description="Work manager",
@@ -19,6 +19,8 @@ setup(
     install_requires=[
         "pyclicommander @ git+https://git.cs.kau.se/tobivehk/pyclicommander.git@75ec433c",
         "pyyaml",
+        "GitPython",
+        "termcolor",
     ],
     entry_points={
         "console_scripts": [
