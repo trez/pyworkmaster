@@ -30,6 +30,12 @@ def wm_config_get(project):
     __for_project(lambda p: pprint(config[p]), project=project)
 
 
+@commander.cli("PROJECT path")
+def wm_path_get(project):
+    """ Get configuration for a project. """
+    __for_project(lambda p: print(config[p]['variables']['PATH']), project=project)
+
+
 @commander.cli("PROJECT attach")
 def wm_attach(project, setup=False):
     """ Attach to a project workspace.
@@ -77,21 +83,24 @@ def wm_current_config():
     __for_project(wm_config_get)
 
 
-@commander.cli("")
-def wm_main():
+@commander.cli("[-q/--quiet]")
+def wm_main(q=False):
     """ List all available projects found in config. """
     for proj in sorted(config):
-        branch_text = ""
-        if status := _git.status(config, proj):
-            branch, info = status
-            has_changes = sum(info.values()) > 0 
-            status_text = red_x if has_changes else green_check
-            branch_text = f"[{branch}]"
+        if q:
+            print(proj)
         else:
-            status_text = " "
+            branch_text = ""
+            if status := _git.status(config, proj):
+                branch, info = status
+                has_changes = sum(info.values()) > 0 
+                status_text = red_x if has_changes else green_check
+                branch_text = f"[{branch}]"
+            else:
+                status_text = " "
 
-        # print((f"{'* ' if s.is_setup(proj) else ''}{proj}"))
-        print(f"{status_text} {proj} {branch_text}")
+            # print((f"{'* ' if s.is_setup(proj) else ''}{proj}"))
+            print(f"{status_text} {proj} {branch_text}")
 
 
 def __for_project(run_f, project=None):
@@ -104,6 +113,7 @@ def __for_project(run_f, project=None):
         print("Not configured workmaster project")
     else:
         print("Could not figure out current project")
+    sys.exit(1)
 
 
 def main():
