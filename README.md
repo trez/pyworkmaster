@@ -122,3 +122,23 @@ caption always "%{= kw}%-w%{= BW}%n %t%{-}%+w %-= @%H - %LD %d %LM - %c"
 # use ctrl-b instead of ctrl-a.
 escape ^Bb
 ```
+
+### bashrc (auto complete)
+```
+_workmaster_cmds() {
+    local known_projects cur sub_commands
+
+    cur="${COMP_WORDS[COMP_CWORD]}"
+    if [ $COMP_CWORD -lt 2 ]; then
+        known_projects=$(workmaster -q)
+    else
+        known_projects=""
+    fi
+    sub_commands=$(${COMP_WORDS[@]:0:COMP_CWORD} --help | sed -n -e '/Subcommands:/,$p' | tail -n +2 | awk '{print $1}' | grep -v '__WILDCARD__')
+    
+    COMPREPLY=( $(compgen -W "$sub_commands $known_projects" -- ${cur}) )
+    return 0
+}
+
+complete -F _workmaster_cmds workmaster
+```
