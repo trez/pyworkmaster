@@ -23,10 +23,11 @@ def setup(p):
             screenrc.append(f'stuff "{cmd}^M"')
 
     # Create layout.
-    queue = [p["layout"]]
+    screenrc.append(f"# layout: {p['layout']}")
+    queue = [p['layout']]
     while queue:
         n, *queue = queue
-        queue.extend(n.children)
+        queue = n.children + queue
         if not n.name.isalpha():
             num_splits = len(n.children) - 1
             split = "split -v" if n.name == "|" else "split"
