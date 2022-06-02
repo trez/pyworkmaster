@@ -1,6 +1,7 @@
 import sys
 import os
 import logging
+import pkg_resources
 from pprint import pprint
 from pyclicommander import Commander
 
@@ -17,7 +18,7 @@ config = None
 
 @commander.cli("PROJECT git")
 def wm_git(project):
-    """ Get configuration for a project. """
+    """ Current git status for PROJECT. """
     def _print_git_status(project):
         branch, status = _git.status(config, project)
         print(status)
@@ -26,19 +27,21 @@ def wm_git(project):
 
 @commander.cli("PROJECT config")
 def wm_config_get(project):
-    """ Get configuration for a project. """
+    """ Configuration for a PROJECT.
+    """
     __for_project(lambda p: pprint(config[p]), project=project)
 
 
 @commander.cli("PROJECT path")
 def wm_path_get(project):
-    """ Get configuration for a project. """
+    """ Path of where PROJECT resides locally.
+    """
     __for_project(lambda p: print(config[p]['variables']['PATH']), project=project)
 
 
 @commander.cli("PROJECT attach")
 def wm_attach(project, setup=False):
-    """ Attach to a project workspace.
+    """ Attach to a PROJECT workspace.
     """
     _assert_project_defined(project)
 
@@ -50,7 +53,8 @@ def wm_attach(project, setup=False):
 
 @commander.cli("PROJECT kill")
 def wm_kill(project):
-    """ Kill a project workspace. """
+    """ Kill a PROJECT workspace.
+    """
     def _kill(project):
         if not s.is_setup(project):
             print("Project not setup.")
@@ -62,30 +66,47 @@ def wm_kill(project):
 
 @commander.cli("PROJECT")
 def wm_project(project):
-    __for_project(lambda p: print(f"{project=}"), project=project)
+    """ Commands available for PROJECT.
+    """
+    __for_project(lambda p: commander.help(p), project=project)
 
 
 @commander.cli("current")
 def wm_current_name():
-    """ Name current session. """
+    """ Name current session.
+    """
     __for_project(print)
 
 
 @commander.cli("current kill")
 def wm_current_kill():
-    """ Kill current session. """
+    """ Kill current session.
+    """
     __for_project(s.kill)
 
 
 @commander.cli("current config")
 def wm_current_config():
-    """ Get config for current session. """
+    """ Config for current session.
+    """
     __for_project(wm_config_get)
 
 
-@commander.cli("[-q/--quiet]")
-def wm_main(q=False):
-    """ List all available projects found in config. """
+@commander.cli("[-q/--quiet] [-v/--version]")
+def wm_main(q=False, v=False):
+    """ List all available projects found in config.
+
+If path is defined and is a git repo is setup then get more detailed info in the listing.
+
+Flags:
+\t-q\tList only names of projects
+\t-v\tPrint version number
+    """
+    if v:
+        version = pkg_resources.require("workmaster")[0].version
+        print(version)
+        return 0
+
     for proj in sorted(config):
         if q:
             print(proj)
@@ -93,7 +114,7 @@ def wm_main(q=False):
             branch_text = ""
             if status := _git.status(config, proj):
                 branch, info = status
-                has_changes = sum(info.values()) > 0 
+                has_changes = sum(info.values()) > 0
                 status_text = red_x if has_changes else green_check
                 branch_text = f"[{branch}]"
             else:
