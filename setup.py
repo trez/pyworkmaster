@@ -17,7 +17,7 @@ setup(
     },
     classifiers=["Programming Language :: Python :: 3"],
     install_requires=[
-        "pyclicommander @ git+https://git.cs.kau.se/tobivehk/pyclicommander.git@2ebbb1f6",
+        "pyclicommander @ git+https://github.com/trez/pyclicommander@36a0ea1",
         "pyyaml",
         "GitPython",
         "termcolor",
