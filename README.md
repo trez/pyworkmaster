@@ -134,7 +134,7 @@ _workmaster_cmds() {
     else
         known_projects=""
     fi
-    sub_commands=$(${COMP_WORDS[@]:0:COMP_CWORD} --help | sed -n -e '/Subcommands:/,$p' | tail -n +2 | awk '{print $1}' | grep -v '__WILDCARD__')
+    sub_commands=$(${COMP_WORDS[@]:0:COMP_CWORD} --help | sed -n -e '/Subcommands:/,$p' | tail -n +2 | awk '{print $1}' | grep -Ewv '[[:upper:]]+')
     
     COMPREPLY=( $(compgen -W "$sub_commands $known_projects" -- ${cur}) )
     return 0
