@@ -12,7 +12,8 @@ DEFAULT_LOCAL_CONFIG_NAME = ".workmaster.yml"
 
 HOME = os.path.abspath(os.path.expanduser("~"))
 CONFIG_HOME = os.getenv("XDG_CONFIG_HOME", os.path.join(HOME, ".config"))
-CONFIG = os.path.join(CONFIG_HOME, "workmaster", DEFAULT_CONFIG_NAME)
+WORKMASTER_HOME = os.path.join(CONFIG_HOME, "workmaster")
+CONFIG = os.path.join(WORKMASTER_HOME, DEFAULT_CONFIG_NAME)
 LOCALCONFIG = os.path.join(os.path.abspath(os.getcwd()), DEFAULT_LOCAL_CONFIG_NAME)
 
 
@@ -28,7 +29,7 @@ ALL_PARAMS = {"log_level": (translate_loglevel("INFO"), int)}
 
 class Config:
     def __init__(self, document=None):
-        self.config = {"common": {}}
+        self.config = {"common": {"workmaster_home": WORKMASTER_HOME}}
 
         for p in ALL_PARAMS:
             self.config["common"][p] = ALL_PARAMS[p]
@@ -110,3 +111,6 @@ class Config:
             if gitinfo := y.get("git"):
                 p["git"] = {}
                 p["git"]["repo"] = gitinfo.get("repo")
+
+
+config = Config()

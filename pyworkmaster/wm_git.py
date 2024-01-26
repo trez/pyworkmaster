@@ -1,7 +1,9 @@
 from git import Repo
 
+from pyworkmaster.config import config
 
-def status(config, project):
+
+def status(project):
     if path := config[project]["variables"].get("PATH"):
         repo = Repo(path)
         branch = repo.active_branch
@@ -14,11 +16,11 @@ def status(config, project):
 
         diffs = [diff.change_type for diff in repo.index.diff(None)]
         status = {
-            'untracked': len(repo.untracked_files),
-            'added': diffs.count('A'),
-            'renamed': diffs.count('R'),
-            'deleted': diffs.count('D'),
-            'modified': diffs.count('M'),
-            'changed': diffs.count('T'),
+            "untracked": len(repo.untracked_files),
+            "added": diffs.count("A"),
+            "renamed": diffs.count("R"),
+            "deleted": diffs.count("D"),
+            "modified": diffs.count("M"),
+            "changed": diffs.count("T"),
         }
         return branch, status

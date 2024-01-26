@@ -24,7 +24,7 @@ def setup(p):
 
     # Create layout.
     screenrc.append(f"# layout: {p['layout']}")
-    queue = [p['layout']]
+    queue = [p["layout"]]
     while queue:
         n, *queue = queue
         queue = n.children + queue
@@ -45,10 +45,12 @@ def setup(p):
         f.write("\n".join(screenrc))
 
     # Start screen session.
-    process = subprocess.run(f"screen -c {tmpfile}",
-                             shell=True,
-                             stdout=subprocess.DEVNULL,
-                             stderr=subprocess.STDOUT)
+    process = subprocess.run(
+        f"screen -c {tmpfile}",
+        shell=True,
+        stdout=subprocess.DEVNULL,
+        stderr=subprocess.STDOUT,
+    )
     return process.returncode
 
 
@@ -57,10 +59,12 @@ def attach(p):
 
 
 def is_setup(p):
-    process = subprocess.run(f"screen -S {p} -Q select .",
-                             shell=True,
-                             stdout=subprocess.DEVNULL,
-                             stderr=subprocess.STDOUT)
+    process = subprocess.run(
+        f"screen -S {p} -Q select .",
+        shell=True,
+        stdout=subprocess.DEVNULL,
+        stderr=subprocess.STDOUT,
+    )
     return process.returncode == 0
 
 
