@@ -77,14 +77,20 @@ def wm_notes(project, note=None):
 
 @commander.cli("PROJECT open git-repo")
 def wm_open_repo(project):
-    """Open browser for git repo."""
-
+    """Open up browser for your git repository."""
     def _open(project):
         repo = config[project].get("git", {}).get("repo", None)
+        if not repo:
+            print("No git repo url found...")
+            return
+
+        # translate git@url:repo into https://url/repo
         if repo.startswith("git@"):
             re_match = re.search("^git@(?P<url>.*):(?P<repo>.*).git", repo)
             repo = f"https://{re_match['url']}/{re_match['repo']}"
         print(f"Opening {repo} ...")
+
+        # open url in users preferred application
         rc = subprocess.run(
             f"xdg-open {repo}",
             shell=True,
@@ -124,8 +130,9 @@ def wm_current_notes(note=None):
     __for_project(lambda p: wm_notes(p, note))
 
 
-@commander.cli("current open gitrepo")
+@commander.cli("current open git-repo")
 def wm_current_open_gitrepo():
+    """Open up browser for your git repository."""
     __for_project(wm_open_repo)
 
 
