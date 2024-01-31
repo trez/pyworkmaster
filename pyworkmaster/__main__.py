@@ -1,7 +1,10 @@
 import sys
 import os
+import re
 import logging
 import pkg_resources
+import subprocess
+
 from pprint import pprint
 from pyclicommander import Commander
 
@@ -72,6 +75,25 @@ def wm_notes(project, note=None):
         notes.read_notes(project)
 
 
+@commander.cli("PROJECT open git-repo")
+def wm_open_repo(project):
+    """Open browser for git repo."""
+
+    def _open(project):
+        repo = config[project].get("git", {}).get("repo", None)
+        if repo.startswith("git@"):
+            re_match = re.search("^git@(?P<url>.*):(?P<repo>.*).git", repo)
+            repo = f"https://{re_match['url']}/{re_match['repo']}"
+        print(f"Opening {repo} ...")
+        rc = subprocess.run(
+            f"xdg-open {repo}",
+            shell=True,
+            stdout=subprocess.DEVNULL,
+            stderr=subprocess.STDOUT,
+        )
+    __for_project(_open, project=project)
+
+
 @commander.cli("PROJECT")
 def wm_project(project):
     """Commands available for PROJECT."""
@@ -100,6 +122,11 @@ def wm_current_config():
 def wm_current_notes(note=None):
     """Note for current project."""
     __for_project(lambda p: wm_notes(p, note))
+
+
+@commander.cli("current open gitrepo")
+def wm_current_open_gitrepo():
+    __for_project(wm_open_repo)
 
 
 @commander.cli("[-q/--quiet] [-v/--version]")
