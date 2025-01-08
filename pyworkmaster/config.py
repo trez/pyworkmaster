@@ -75,8 +75,13 @@ class Config:
 
             p["variables"] = global_vars.copy()
 
-            # layout.
-            p["layout"] = parse(y.get("layout"))
+            # layouts.
+            p["layouts"] = {}
+            if type(y.get("layout")) is dict:
+                for l, s in y.get("layout").items():
+                    p["layouts"][l] = parse(s)
+            else:
+                p["layouts"]["default"] = parse(y.get("layout"))
 
             # variables.
             p["variables"]["PROJECT"] = project

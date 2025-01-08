@@ -1,17 +1,28 @@
 class Tree:
-    def __init__(self, name="root", children=None):
+    def __init__(self, name="root", children=None, size=None):
         self.name = name
+        self.size = None
         self.children = []
+        self.last_added = None
         if children is not None:
             for child in children:
                 self.add_child(child)
 
     def __repr__(self):
-        return self.name + (str(self.children) if self.children else "")
+        ssize = f"[{self.size}%]"if self.size else ""
+        schild = (str(self.children) if self.children else "")
+        return f"{self.name}{ssize}{schild}"
 
     def add_child(self, node):
         assert isinstance(node, Tree)
         self.children.append(node)
+        self.last_added = node
+
+    def add_size(self, size):
+        if self.last_added:
+            self.last_added.size = size
+        else:
+            raise Exception("assigning size to unknown")
 
 
 def parse(expr):
@@ -44,10 +55,11 @@ def parse_tree(expr, start_from=0, left_parentheses=False):
     expect_rhs = False
     while s_ptr < len(expr):
         s = expr[s_ptr]
-        if s.isalpha():
+        if s.isalpha() or s.isnumeric():
             expect_rhs = False
             curr_name += s
-        else:
+
+        elif not s.isspace():
             if curr_name:
                 node.add_child(Tree(curr_name))
                 curr_name = ""
@@ -58,6 +70,8 @@ def parse_tree(expr, start_from=0, left_parentheses=False):
                     node.name = s
                 else:
                     raise Exception("ambigious")
+            elif s == "%":
+                raise Exception("why % here?")
             elif s == "(":
                 expect_rhs = False
                 subtree, s_ptr = parse_tree(
@@ -70,6 +84,24 @@ def parse_tree(expr, start_from=0, left_parentheses=False):
                     break
                 else:
                     raise Exception("where is left parentheses")
+            elif s == "[":
+                num_val = ""
+                while s_ptr < len(expr):
+                    s_ptr += 1
+                    s = expr[s_ptr]
+                    if s.isnumeric():
+                        num_val += s
+                    elif s == "%":
+                        continue
+                    elif s == "]":
+                        break
+                    else:
+                        raise Exception(f"unexpected: {s}")
+                if num_val:
+                    node.add_size(int(num_val))
+
+            elif s == "]":
+                raise Exception("where is left bracket")
         s_ptr += 1
 
     if left_parentheses:
