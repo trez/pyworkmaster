@@ -19,15 +19,25 @@ _log = logging.getLogger(__name__)
 commander = Commander(cmd_name="workmaster")
 
 
-@commander.cli("PROJECT git")
-def wm_git(project):
+@commander.cli("PROJECT git [COMMANDS...]")
+def wm_git(project, *commands):
     """Current git status for PROJECT."""
+    _assert_project_defined(project)
 
     def _print_git_status(project):
         branch, status = _git.status(project)
         print(status)
 
-    __for_project(_print_git_status, project=project)
+    if not commands:
+        __for_project(_print_git_status, project=project)
+    elif proj_cwd := config[project].get("variables", {}).get("PATH", {}):
+        sh_command = f"git {' '.join(commands)}"
+        rc = subprocess.run(
+            sh_command,
+            shell=True,
+            cwd=proj_cwd,
+        )
+        return rc.returncode
 
 
 @commander.cli("PROJECT config")

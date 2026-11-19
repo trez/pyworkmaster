@@ -7,6 +7,14 @@ _log = logging.getLogger(__name__)
 default_config = os.path.expanduser("~/.screenrc")
 
 
+
+def escape_double_quotes(s: str) -> str:
+    # Important: escape backslashes first so you don't double-escape
+    s = s.replace('\\', r'\\')
+    s = s.replace('"', r'\"')
+    return s
+
+
 def setup(p):
     # Create screenrc
     screenrc = _create_screenrc(
@@ -43,7 +51,7 @@ def _create_screenrc(name, windows, layouts):
     for num, title in enumerate(windows, 1):
         screenrc.append(f"screen -t {title} {num}")
         for cmd in windows[title]:
-            screenrc.append(f'stuff "{cmd}^M"')
+            screenrc.append(f'stuff "{escape_double_quotes(cmd)}^M"')
 
     # Create layout.
     screenrc.append(f"# layout: {layouts}")
@@ -97,6 +105,102 @@ def is_setup(p):
 
 def kill(p):
     subprocess.run(f"screen -XS {p} quit", shell=True)
+
+
+def get_current_layout(p):
+    subprocess.run(f"screen -S {p} -X layout show", shell=True)
+ 
+    lastmsg_output = subprocess.run(
+        f"screen -S {p} -Q lastmsg",
+        shell=True,
+        capture_output=True,
+        text=True,
+    )
+
+    n, *name = lastmsg_output.stdout.split(" ")
+    name = ' '.join(name)
+    return name
+
+
+def get_windows(p):
+    windows_output = subprocess.run(
+        f"screen -S {p} -Q windows '%n,%t,%f|'",
+        shell=True,
+        capture_output=True,
+        text=True,
+    )
+    windows = [parse_title(w) for w in windows_output.stdout.split("|") if w]
+    current_focus = [t for n,t,f in windows if f][0]
+    process = subprocess.run(
+        f"screen -S {p} -Q select .",
+        shell=True,
+        stdout=subprocess.DEVNULL,
+        stderr=subprocess.STDOUT,
+    )
+    return windows, current_focus
+
+
+def move(p, target, layout_name, layout):
+    # move
+    windows, current_focus = get_windows(p)
+    layout.focus(current_focus)
+    print(f"{p=} {layout_name=} {current_focus=} {layout=}")
+    layout.focus(target)
+    print(f"{p=} {layout_name=} {target=} {layout=}")
+    moves = []
+    rec_move(layout, current_focus, target, moves)
+
+
+def rec_move(layout, current, target, moves, direction_forward=None, curr_split=None):
+    if layout.is_split():
+        print(f"SPLIT: {layout.name}")
+        curr_split = layout.name
+        for c in layout.children:
+            print(f"{curr_split=} {direction_forward=}")
+            if direction_forward is not None:
+                if curr_split == "|" and direction_forward:
+                    moves += ["LEFT"]
+                elif curr_split == "|" and not direction_forward:
+                    moves += ["RIGHT"]
+                elif curr_split == "/" and direction_forward:
+                    moves += ["UP"]
+                elif curr_split == "/" and not direction_forward:
+                    moves += ["DOWN"]
+                    
+            print(f"{moves=}")
+            direction_forward, m = rec_move(c, current, target, moves, direction_forward, curr_split)
+    else:
+        print(f"WINDOW: {layout.name}")
+        if layout.name == current:
+            print("FOUND CURRENT")
+            return False, moves
+        if layout.name == target:
+            print("FOUND TARGET")
+            return True, moves
+        return direction_forward, moves
+
+
+        
+
+        
+
+    #process = subprocess.run(
+    #    f"screen -S {p} -X focus up",
+    #    shell=True,
+    #    stdout=subprocess.DEVNULL,
+    #    stderr=subprocess.STDOUT,
+    #)
+
+    return None #process.returncode == 0
+
+
+def parse_title(w):
+    n, title, status = w.split(",")
+    return n, title, status == "*"
+
+
+def has_focus(w):
+    return '*' in w
 
 
 def run_command(session, window, cmd):

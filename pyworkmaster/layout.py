@@ -2,6 +2,7 @@ class Tree:
     def __init__(self, name="root", children=None, size=None):
         self.name = name
         self.size = None
+        self.is_focus = False
         self.children = []
         self.last_added = None
         if children is not None:
@@ -9,9 +10,10 @@ class Tree:
                 self.add_child(child)
 
     def __repr__(self):
-        ssize = f"[{self.size}%]"if self.size else ""
+        ssize = f"[{self.size}%]" if self.size else ""
         schild = (str(self.children) if self.children else "")
-        return f"{self.name}{ssize}{schild}"
+        sfocus = "*" if self.is_focus else ""
+        return f"{self.name}{ssize}{schild}{sfocus}"
 
     def add_child(self, node):
         assert isinstance(node, Tree)
@@ -24,6 +26,19 @@ class Tree:
         else:
             raise Exception("assigning size to unknown")
 
+    def focus(self, child):
+        if self.name == child:
+            self.is_focus = True
+        else:
+            self.is_focus = False
+            for c in self.children:
+                c.focus(child)
+
+    def is_split(self):
+        return self.name == "|" or self.name == "/"
+
+    def unfocus(self):
+        self.focus = False
 
 def parse(expr):
     """ Parse layout expression into a tree structure.
@@ -32,16 +47,16 @@ def parse(expr):
     / split horizontally
 
     ex. parse("A|B")
-      "|"
-     /   \
-    A     B
+     vsplit
+       |
+     [A, B]
 
-    ex. parse("A|(B/C)")
-         "|"
-        /   \
-      A     "/"
-           /   \
-         B       C
+    ex. parse("A|(B/C/D)")
+        vsplit
+          |
+       [A, hsplit]
+             | 
+         [B, C, D]
     """
     if expr:
         tree, _ = parse_tree(expr)
